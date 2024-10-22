@@ -2,8 +2,8 @@ package util
 import Optionals.Optional.*
 import util.Optionals.Optional
 
-object Sequences: // Essentially, generic linkedlists
-  
+object Sequences:
+
   enum Sequence[E]:
     case Cons(head: E, tail: Sequence[E])
     case Nil()
@@ -41,6 +41,10 @@ object Sequences: // Essentially, generic linkedlists
         case x if f(x) => Cons(x, Nil())
         case _ => Nil()
 
+      def filterNot(f: A => Boolean): Sequence[A] = sequence.flatMap:
+        case x if !f(x) => Cons(x, Nil())
+        case _ => Nil()
+
       def find(f: A => Boolean): Optional[A] = sequence match
         case Cons(h, t) if f(h) => Just(h)
         case Cons(_, t) => t.find(f)
@@ -48,11 +52,15 @@ object Sequences: // Essentially, generic linkedlists
 
       def contains(e: A): Boolean = !sequence.find(_ == e).isEmpty
 
+      def forall(p: A => Boolean): Boolean = sequence match
+        case Cons(h, t) => p(h) && t.forall(p)
+        case Nil() => true
+
       def reverse(): Sequence[A] = sequence match
         case Cons(h, t) => t.reverse().concat(Cons(h, Nil()))
         case _ => Nil()
 @main def trySequences =
-  import Sequences.* 
+  import Sequences.*
   val sequence = Sequence(1, 2, 3)
   println(sequence)
   println(sequence.head)
@@ -62,5 +70,3 @@ object Sequences: // Essentially, generic linkedlists
   println(sequence.concat(Sequence(4, 5, 6)))
   println(sequence.find(_ % 2 == 0))
   println(sequence.contains(2))
-
-
